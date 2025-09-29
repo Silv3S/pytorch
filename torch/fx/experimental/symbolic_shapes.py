@@ -1648,7 +1648,7 @@ def constrain_range(
     if max < min:
         raise ValueError(
             "Maximum value to constrain_as_size can't be less than the specified min value, "
-            "received min={min} and max={max}"
+            f"received min={min} and max={max}"
         )
 
     if isinstance(a, int):
@@ -2058,7 +2058,7 @@ _T1 = TypeVar("_T1")
 
 
 @dataclass(frozen=True)
-class StatelessSymbolicContext(Generic[_P1, _T1], SymbolicContext):
+class StatelessSymbolicContext(SymbolicContext, Generic[_P1, _T1]):
     """
     Create symbols in ``create_symbolic_sizes_strides_storage_offset`` via
     a symbolic_context determination as given by ``DimDynamic`` and ``DimConstraint``.
@@ -4095,7 +4095,7 @@ class ShapeEnv:
         if max < min:
             raise ValueError(
                 "Maximum value to constrain_as_size can't be less than the specified min value, "
-                "received min={min} and max={max}"
+                f"received min={min} and max={max}"
             )
 
         self.constrain_symbol_range(
