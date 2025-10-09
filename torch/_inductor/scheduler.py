@@ -1033,9 +1033,9 @@ def maybe_estimate_runtime_benchmark(snode: BaseSchedulerNode) -> Optional[float
     from .utils import snode_args_kwargs
 
     args, kwargs = args_kwargs_fn()
-    from triton.testing import do_bench
+    from torch._inductor.runtime.benchmarking import benchmarker
 
-    ms = do_bench(lambda: bench_fn(*args, **kwargs))
+    ms = benchmarker.benchmark(bench_fn, args, kwargs)  # type: ignore[arg-type]
 
     cache.set_value(cache_key, value=ms)
     return ms
@@ -2683,6 +2683,10 @@ class Scheduler:
                                 WeakDep(other_name, mutating_buf=buf.get_name())
                             )
                             add_user(other_name, node, is_weak=True)
+
+            for add_dep in V.graph.additional_buffer_deps[node.get_name()]:
+                add_user(add_dep, node, is_weak=True)
+                node.add_fake_dep(WeakDep(add_dep, node.get_name()))
 
             # add normal non-mutation dependencies
             for read in node.read_writes.reads:
